@@ -1,5 +1,4 @@
-import React from "react";
-import { useForm } from "@mantine/form";
+import React, { useEffect, useState } from "react";
 import {
   TextInput,
   Button,
@@ -11,15 +10,30 @@ import {
   Container,
   ActionIcon
 } from "@mantine/core";
-import { getTasksRequest } from "../api/task";
 import { useNavigate, Link } from "react-router-dom";
 import { IconLogout } from "@tabler/icons-react";
+import { getTasksRequest } from "../api/task";
+
 function TaskPage() {
   const navigate = useNavigate();
+  const [datos, setDatos] = useState([]);
   const logout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const resp = await getTasksRequest();
+        setDatos(resp.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  });
 
   return (
     <Container>
@@ -61,13 +75,13 @@ function TaskPage() {
           </ActionIcon>
         </Box>
       </Box>
-      <Box
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center"
-        }}
-      ></Box>
+      <Box>
+        <ul>
+          {datos.map((item, index) => (
+            <li key={index}>{item.description}</li>
+          ))}
+        </ul>
+      </Box>
     </Container>
   );
 }
